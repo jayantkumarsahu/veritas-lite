@@ -18,4 +18,24 @@ router.get("/tasks",(req,res)=>{
 	res.status(200).json({data: EventStore.all()} );
 });
 
+router.get("/:id", (req, res) => {
+  try {
+    const task = TaskService.getTask(req.params.id);
+    res.json(task);
+  } catch (err: any) {
+    res.status(404).json({ error: err.message });
+  }
+});
+
+router.post("/:id/complete", (req, res) => {
+  try {
+    const task = TaskService.completeTask(req.params.id);
+    res.json(task);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+
+
 export default router;
