@@ -1,19 +1,18 @@
-import { TaskEvent } from "../../../packages/events/task-events";
+import { TaskEvent } from "@events/task-events";
 
-export class InMemoryEventStore {
-  private events: TaskEvent[] = [];
+const events: TaskEvent[] = [];
 
+export const EventStore = {
   append(event: TaskEvent) {
-    this.events.push(event);
-  }
-
-  getByTaskId(taskId: string): TaskEvent[] {
-    return this.events.filter(
-      (e: any) => e.payload?.taskId === taskId
-    );
-  }
+    events.push(event);
+  },
 
   all(): TaskEvent[] {
-    return [...this.events];
+    return [...events];
+  },
+
+  byTask(taskId: string): TaskEvent[] {
+    return events.filter(e => e.taskId === taskId);
   }
-}
+};
+

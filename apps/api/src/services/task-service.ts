@@ -1,28 +1,24 @@
-import { Task } from "../../../packages/domain/src/task";
-import { InMemoryEventStore } from "../store/event-store";
-import { TaskAnalyzer } from "../../../packages/ai/src/task-analyzer";
-import { TaskDecayAnalyzer } from "../../../packages/ai/src/decay-analyzer";
+import { randomUUID } from "crypto";
+import { Task } from "@domain/task";
+import { EventStore } from "../store/event-store";
+import { TaskCreatedEvent } from "@events/task-events";
 
-export class TaskService {
-  private decay = new TaskDecayAnalyzer();
+export const TaskService = {
+  createTask(title: string) {
+    const id = randomUUID();
+    const task = Task.create(id, title);
 
-  constructor(
-    private readonly store: InMemoryEventStore,
-    private readonly analyzer: TaskAnalyzer
-  ) {}
-
-  async createTask(taskId: string) {
-    const task = new Task(taskId);
-    const state = task.getState();
-
-    state.history.forEach(e => this.store.append(e as any));
-
-    const events = this.store.getByTaskId(taskId);
-
-    return {
-      insight: await this.analyzer.analyze(events),
-      decay: this.decay.analyze(events),
+    const event: TaskCreatedEvent = {
+      type: "TaskCreated",
+      taskId: task.id,
+      title: task.title,
+      occurredAt: new Date()
     };
+
+    EventStore.append(event);
+
+    return task;
   }
-}
+};
+
 
